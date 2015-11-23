@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_NoForo" title="[⌂] NoForo" version_string="1.1.0" version_id="1447261019" url="http://xf.themehouse.io/" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="th_application_splash_noforo"><![CDATA[		<li><a href="{xen:adminlink 'feeds'}" class="feeder">
+			<span class="icon"><span></span></span>
+			<span class="linkText">{xen:phrase registered_feeds}</span>
+			</a></li>]]></template>
+    <template title="th_option_template_noforum_noforo"><![CDATA[<xen:checkboxunit label="">
+	<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][no_forum]" label="{$preparedOption.title}" value="1" selected="{$preparedOption.option_value.no_forum}">
+		<xen:hint>{xen:phrase th_checking_box_will_remove_all_elements_noforo}</xen:hint>
+		<xen:checkbox inputclass="autoSize">
+			<xen:option name="{$fieldPrefix}[{$preparedOption.option_id}][no_link_forums]" value="1" selected="{$preparedOption.option_value.no_link_forums}">
+				<xen:label>{xen:phrase th_remove_link_forums_noforo}</xen:label>
+				<xen:hint>{xen:phrase th_remove_link_forums_desc_noforo}</xen:hint>
+			</xen:option>
+		</xen:checkbox>
+	</xen:option>
+
+	<xen:html>
+		{xen:raw $editLink}
+		<input type="hidden" name="{$listedFieldName}" value="{$preparedOption.option_id}" />
+	</xen:html>
+	
+	<xen:explain>{xen:raw $preparedOption.explain}</xen:explain>
+</xen:checkboxunit>]]></template>
+    <template title="th_tools_rebuild_noforo"><![CDATA[<xen:form action="{xen:adminlink 'tools/cache-rebuild'}">
+	<h2 class="subHeading">{xen:phrase rebuild_thread_information}</h2>
+	<xen:spinboxunit name="options[batch]" value="250" step="50" min="1" label="{xen:phrase items_to_process_per_page}:" id="ctrl_optionsbatch_1" />
+	<xen:checkboxunit label="">
+		<xen:option name="options[positionRebuild]" value="1" id="ctrl_optionspositionRebuild_1">
+			<xen:label>{xen:phrase rebuild_position_and_post_counters}</xen:label>
+			<xen:hint>{xen:phrase will_slow_process_down_only_needed_if_posts_in_incorrect_order}</xen:hint>
+		</xen:option>
+	</xen:checkboxunit>
+	
+	<xen:submitunit save="{xen:phrase rebuild_now}" />
+	<input type="hidden" name="cache" value="Thread" />
+</xen:form>
+
+<xen:form action="{xen:adminlink 'tools/cache-rebuild'}">
+	<h2 class="subHeading">{xen:phrase rebuild_poll_information}</h2>
+	<xen:spinboxunit name="options[batch]" value="250" step="50" min="1" label="{xen:phrase items_to_process_per_page}:" id="ctrl_optionsbatch_2" />
+	
+	<xen:submitunit save="{xen:phrase rebuild_now}" />
+	<input type="hidden" name="cache" value="Poll" />
+</xen:form>
+
+<xen:form action="{xen:adminlink 'tools/cache-rebuild'}">
+	<h2 class="subHeading">{xen:phrase rebuild_forum_information}</h2>
+	<xen:spinboxunit name="options[batch]" value="20" step="5" min="1" label="{xen:phrase items_to_process_per_page}:" id="ctrl_optionsbatch_3" />
+	
+	<xen:submitunit save="{xen:phrase rebuild_now}" />
+	<input type="hidden" name="cache" value="Forum" />
+</xen:form>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="application_splash" modification_key="th_applicationSplash_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a href="{xen:adminlink 'feeds'}" class="feeder">.*</a></li>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="home" modification_key="th_home2_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<a href="{xen:adminlink nodes}"><span class="label">{xen:phrase discussions}:.*</a>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="home" modification_key="th_home3_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<a href="{xen:adminlink nodes}"><span class="label">{xen:phrase messages}:.*</a>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="home" modification_key="th_home_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<div class="section">\s*<div class="secondaryContent">\s*)(<h3 class="textHeading">{xen:phrase forum_statistics}</h3>)(\s*<div class="statsBlock">)(.*)(</div>\s*</div>\s*</div>)#Us]]></find>
+      <replace><![CDATA[<xen:if hascontent="true">
+${1}
+<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${2}
+</xen:if>
+${3}
+<xen:contentcheck>
+${4}
+</xen:contentcheck>
+${5}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="resource_category_edit" modification_key="th_resourceCategoryEdit_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<fieldset>\s*<xen:controlunit label="{xen:phrase automatically_create_thread_in_forum}:">.*</fieldset>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="tools_rebuild" modification_key="th_toolsRebuild_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:form action="{xen:adminlink 'tools/trigger-deferred'}">\s*<h2 class="subHeading">{xen:phrase rebuild_(thread|poll|forum)_information}</h2>.*</xen:form>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="container_public_params" execute_order="10" callback_class="ThemeHouse_NoForo_Listener_ContainerPublicParams" callback_method="containerPublicParams" active="1" hint="" description=""/>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_NoForo_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="ThemeHouse_NoForo_Listener_InitDependencies" callback_method="initDependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerAdmin_User" description="XenForo_ControllerAdmin_User (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerPublic_Index" description="XenForo_ControllerPublic_Index (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerPublic_Member" description="XenForo_ControllerPublic_Member (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_User" description="XenForo_DataWriter_User (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassDeferred" active="0" hint="XenForo_Deferred_DailyStats" description="XenForo_Deferred_DailyStats (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassModel" active="0" hint="XenForo_Model_Cron" description="XenForo_Model_Cron (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassModel" active="0" hint="XenForo_Model_ThreadRedirect" description="XenForo_Model_ThreadRedirect (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassModel" active="0" hint="XenForo_Model_User" description="XenForo_Model_User (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassRoutePrefix" active="0" hint="XenForo_Route_Prefix_Index" description="XenForo_Route_Prefix_Index (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class_controller" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassController" active="1" hint="" description="(For XenForo 1.1 and below)"/>
+    <listener event_id="load_class_datawriter" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassDataWriter" active="1" hint="" description="(For XenForo 1.1 and below)"/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassModel" active="1" hint="" description="(For XenForo 1.1 and below)"/>
+    <listener event_id="load_class_route_prefix" execute_order="0" callback_class="ThemeHouse_NoForo_Listener_LoadClass" callback_method="loadClassRoutePrefix" active="1" hint="" description="(For XenForo 1.1 and below)"/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="ThemeHouse_NoForo_Listener_TemplatePostRender" callback_method="templatePostRender" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="th_noForo" display_order="2000" debug_only="0"/>
+    <option option_id="th_noForo_noForum" edit_format="callback" data_type="array" can_backup="1" validation_class="ThemeHouse_NoForo_Option_NoForum" validation_method="validateNoForum">
+      <default_value>a:0:{}</default_value>
+      <edit_format_params>ThemeHouse_NoForo_Option_NoForum::render</edit_format_params>
+      <sub_options>*</sub_options>
+      <relation group_id="th_noForo" display_order="200"/>
+    </option>
+    <option option_id="th_noForo_noMessageCount" edit_format="onoff" data_type="boolean" can_backup="1" validation_class="ThemeHouse_NoForo_Option_NoMessageCount" validation_method="validateNoMessageCount">
+      <default_value>0</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_noForo" display_order="210"/>
+    </option>
+    <option option_id="th_noForo_sandbox" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_noForo" display_order="1"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_th_noForo" version_id="0" version_string="1.0.0"><![CDATA[NoForo by ThemeHouse]]></phrase>
+    <phrase title="option_group_th_noForo_description" version_id="0" version_string="1.0.0"><![CDATA[Options for the NoForo by ThemeHouse add-on.]]></phrase>
+    <phrase title="option_th_noForo_noForum" version_id="0" version_string="1.0.0"><![CDATA[Remove Forum]]></phrase>
+    <phrase title="option_th_noForo_noForum_explain" version_id="1357228431" version_string="1.0.3"><![CDATA[]]></phrase>
+    <phrase title="option_th_noForo_noMessageCount" version_id="1357132541" version_string="1.0.1"><![CDATA[Remove Message Counter]]></phrase>
+    <phrase title="option_th_noForo_noMessageCount_explain" version_id="1357132541" version_string="1.0.1"><![CDATA[Checking this box will remove all users' message counts and any references to them. This may cause compatibility issues with certain add-ons.<br/><br/>
+Unchecking this box will restore the message counts, but you may need to <a href="admin.php?tools/rebuild">Rebuild Caches</a>.]]></phrase>
+    <phrase title="option_th_noForo_sandbox" version_id="1355929252" version_string="1.0.0"><![CDATA[Enable Sandbox mode]]></phrase>
+    <phrase title="option_th_noForo_sandbox_explain" version_id="1355931091" version_string="1.0.0"><![CDATA[In sandbox mode, no data will be deleted or rebuilt when changing any of the options below.]]></phrase>
+    <phrase title="site_statistics" version_id="0" version_string="1.0.0"><![CDATA[Site Statistics]]></phrase>
+    <phrase title="style_property_noForo_showBottomBreadcrumb_description_master" version_id="1419340434" version_string="1.1.0"><![CDATA[Disabling this option will hide the bottom breadcrumb on every page.]]></phrase>
+    <phrase title="style_property_noForo_showBottomBreadcrumb_master" version_id="1419340434" version_string="1.1.0"><![CDATA[Show bottom breadcrumb]]></phrase>
+    <phrase title="style_property_noForo_showTopBreadcrumb_description_master" version_id="1419340434" version_string="1.1.0"><![CDATA[Disabling this option will hide the top breadcrumb on every page.]]></phrase>
+    <phrase title="style_property_noForo_showTopBreadcrumb_master" version_id="1419340434" version_string="1.1.0"><![CDATA[Show top breadcrumb]]></phrase>
+    <phrase title="th_checking_box_will_remove_all_elements_noforo" version_id="1357228431" version_string="1.0.3"><![CDATA[Checking this box will remove all forum elements. All forums, threads, posts and other directly related items will be permanently deleted.<br/><br/>
+Unchecking the 'Remove Forum' box will rebuild some forum elements. To add back remaining elements, you will need to <a href="install/index.php?upgrade/rebuild">Rebuild Master Data</a>.<br/><br/>
+Additionally, the following forum-related items can also be deleted, but doing so might cause incompatibilities with other add-ons, and these items cannot be added back individually (except in Sandbox mode):]]></phrase>
+    <phrase title="th_remove_link_forums_desc_noforo" version_id="1357228431" version_string="1.0.3"><![CDATA[This will remove the link forum node type. All link forums will be permanently deleted. Removing link forums may cause errors with some add-ons, including <a href="http://xenforo.com/community/resources/nodes-as-tabs.9/">Nodes As Tabs</a>.]]></phrase>
+    <phrase title="th_remove_link_forums_noforo" version_id="1357228431" version_string="1.0.3"><![CDATA[Remove Link Forums]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties>
+    <property property_name="noForo_showTopBreadcrumb" property_type="scalar" definition="1" group_name="breadcrumb" title="Show top breadcrumb" description="Disabling this option will hide the top breadcrumb on every page." css_components="" scalar_type="boolean" scalar_parameters="" display_order="1" sub_group="display"><![CDATA[1]]></property>
+    <property property_name="noForo_showBottomBreadcrumb" property_type="scalar" definition="1" group_name="breadcrumb" title="Show bottom breadcrumb" description="Disabling this option will hide the bottom breadcrumb on every page." css_components="" scalar_type="boolean" scalar_parameters="" display_order="10" sub_group="display"><![CDATA[1]]></property>
+  </style_properties>
+  <templates>
+    <template title="index" version_id="0" version_string="1.0.0"><![CDATA[<xen:h1>{$xenOptions.boardTitle}</xen:h1>
+
+<xen:container var="$head.canonical"><link rel="canonical" href="{xen:link 'canonical:index'}" /></xen:container>
+<xen:if is="{$xenOptions.boardDescription}"><xen:container var="$head.description">
+	<meta name="description" content="{$xenOptions.boardDescription}" /></xen:container></xen:if>
+<xen:container var="$head.openGraph">
+	<xen:include template="open_graph_meta">
+		<xen:set var="$url">{xen:link 'canonical:index'}</xen:set>
+		<xen:set var="$title">{$xenOptions.boardTitle}</xen:set>
+	</xen:include></xen:container>
+
+<xen:hook name="forum_list_nodes">
+	<xen:if is="{$renderedNodes}"><xen:include template="node_list" /></xen:if>
+</xen:hook>
+	
+<xen:sidebar>
+	<xen:edithint template="sidebar.css" />
+	
+	<xen:hook name="forum_list_sidebar">
+		<xen:include template="sidebar_online_users" />
+		
+		<!-- block: forum_stats -->
+		<div class="section">
+			<div class="secondaryContent statsList" id="boardStats">
+				<h3>{xen:phrase site_statistics}</h3>
+				<div class="pairsJustified">
+					<dl class="memberCount"><dt>{xen:phrase members_count}:</dt>
+						<dd>{xen:number $boardTotals.users}</dd></dl>
+					<dl><dt>{xen:phrase latest_member}:</dt>
+						<dd><xen:username user="$boardTotals.latestUser" /></dd></dl>
+					<!-- slot: forum_stats_extra -->
+				</div>
+			</div>
+		</div>
+		<!-- end block: forum_stats -->
+		
+		<xen:include template="sidebar_share_page">
+			<xen:set var="$url">{xen:link canonical:index}</xen:set>
+		</xen:include>
+		
+	</xen:hook>
+</xen:sidebar>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="account_alert_preferences" modification_key="th_accountAlertPreferences_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<h3 class="sectionHeader">{xen:phrase messages_in_threads}</h3>.*)(<xen:hook name="account_alerts_after_posts" />)#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${1}
+</xen:if>
+${2}]]></replace>
+    </modification>
+    <modification template="account_wrapper" modification_key="th_accountWrapper2_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a\s*class="primaryContent"\s*href="{xen:link watched/forums}">{xen:phrase watched_forums}</a></li>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="account_wrapper" modification_key="th_accountWrapper_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a\s*class="primaryContent"\s*href="{xen:link watched/threads}">{xen:phrase watched_threads}</a></li>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="footer" modification_key="th_copyrightNotice_noForo" description="Copyright notice for [⌂] NoForo" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+    <modification template="footer" modification_key="th_footer_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a href="{xen:link forums/-/index.rss}".*</a></li>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">${0}</xen:if>]]></replace>
+    </modification>
+    <modification template="member_card" modification_key="th_memberCard_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dt>{xen:phrase messages}:.*</dd>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="member_list_item" modification_key="th_memberListItem_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dt title="{xen:phrase total_messages_posted_by_x.*</dd>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="member_list" modification_key="th_memberList_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<div class="section activeMembers">\s*<div class="secondaryContent avatarHeap">.*</div>\s*</div>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="member_notable" modification_key="th_memberNotable_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li class="{xen:if '{\$type} == "messages".*{xen:phrase most_messages}</a></li>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="member_view" modification_key="th_memberView_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dl><dt>{xen:phrase messages}:.*</dl>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="message_user_info" modification_key="th_messageUserInfo_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:if is="{xen:property messageShowMessageCount}.*</xen:if>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="node_category_level_2" modification_key="th_nodeCategoryLevel22_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<div class="nodeLastPost.*</div>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="node_category_level_2" modification_key="th_nodeCategoryLevel2_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dl><dt>{xen:phrase discussions}:</dt>.*</dl>\s*<dl><dt>{xen:phrase messages}:</dt>.*</dl>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="PAGE_CONTAINER" modification_key="th_pageContainer_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<link[^>]*href="{xen:link forums/-/index.rss}" />)(.*<div class="breadBoxTop.*)(<xen:include template="breadcrumb">.*</xen:include>)(.*<div class="breadBoxBottom.*)(<xen:include template="breadcrumb" />)#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">${1}</xen:if>
+${2}<xen:if is="{xen:property noForo_showTopBreadcrumb}">${3}</xen:if>
+${4}<xen:if is="{xen:property noForo_showBottomBreadcrumb}">${5}</xen:if>]]></replace>
+    </modification>
+    <modification template="quick_navigation_menu" modification_key="th_quickNavigationMenu2_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<h3 class="primaryContent">{xen:phrase forum_list}</h3>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="quick_navigation_menu" modification_key="th_quickNavigationMenu_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a href="{xen:link forums}">{xen:phrase forums}</a></li>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="register_confirm" modification_key="th_registerConfirm_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a href="{xen:link index}">{xen:phrase return_to_forum_home_page}</a></li>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="register_process" modification_key="th_registerProcess_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li><a href="{xen:link index}">{xen:phrase return_to_forum_home_page}</a></li>#]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="search_form_tabs" modification_key="th_searchFormTabs_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<li{xen:if "{\$searchType} == 'post'.*</li>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="search_form" modification_key="th_searchForm_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<xen:if is="{\$nodes}">\s*<dl.*</dl>\s*</xen:if>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noForum}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="sidebar_visitor_panel" modification_key="th_sidebarVisitorPanel_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dl class="pairsJustified"><dt>{xen:phrase messages}:.*</dl>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+    <modification template="spam_cleaner" modification_key="th_spamCleaner_noForo" description="Removes forum-related items." execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#<dt>{xen:phrase message_count}:.*</dd>#Us]]></find>
+      <replace><![CDATA[<xen:if is="!{$xenOptions.th_noForo_noMessageCount}">
+${0}
+</xen:if>]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
